@@ -9,5 +9,32 @@
  */
 bool validateIPChecksum(uint8_t *packet, size_t len) {
   // TODO:
-  return true;
+  uint8_t *p;
+  int headLen, length;
+  uint16_t cksum = 0;
+  p = packet + 2;
+  if(size_t(p[0]<<8 + p[1]) == len)
+  {
+    p = packet;
+    headLen = int(p[0]&0xf0);
+    while (headLen > 0)
+    {
+      cksum += int(p[0]<<8 + p[1]);
+      p += 2;
+      headLen -= 2;
+    }
+    cksum = ~cksum;
+    if (cksum == uint16_t(packet[10]<<8 + packet[11]))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    return false;
+  }
 }
