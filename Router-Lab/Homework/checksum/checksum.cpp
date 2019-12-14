@@ -10,21 +10,23 @@
 bool validateIPChecksum(uint8_t *packet, size_t len) {
   // TODO:
   uint8_t *p;
-  int headLen, length;
-  uint16_t cksum = 0;
+  int headLen;
+  unsigned long cksum = 0;
   p = packet + 2;
   if((size_t(p[0]<<8) + size_t(p[1])) == len)
   {
     p = packet;
-    headLen = int(p[0]&0xf0);
+    headLen = int((p[0]&0x0f)<<2);
     while (headLen > 0)
     {
-      cksum += uint16_t(p[0]<<8) + uint16_t(p[1]);
+      cksum += (uint16_t(p[0]<<8) + uint16_t(p[1]));
       p += 2;
       headLen -= 2;
     }
-    cksum = ~cksum;
-    if (cksum == uint16_t(packet[10]<<8) + uint16_t(packet[11]))
+    cksum = (cksum>>16) + (cksum&0xffff);
+    cksum += (cksum>>16);
+    cksum = uint16_t(~cksum);
+    if (uint16_t(cksum) == 0)
     {
       return true;
     }
