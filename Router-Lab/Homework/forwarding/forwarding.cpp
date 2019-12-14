@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+extern bool validateIPChecksum(uint8_t *packet, size_t len);
+
 /**
  * @brief 进行转发时所需的 IP 头的更新：
  *        你需要先检查 IP 头校验和的正确性，如果不正确，直接返回 false ；
@@ -12,5 +14,37 @@
  */
 bool forward(uint8_t *packet, size_t len) {
   // TODO:
-  return false;
+  uint8_t *p;
+  int headLen;
+  unsigned long cksum = 0;
+  if(validateIPChecksum(packet, len))
+  {
+    p = packet + 8;
+    if(p[0] > 0x00)
+    {
+      p[0] = p[0] - 1;
+      p = packet;
+      headLen = int((p[0]&0x0f)<<2);
+      while (headLen > 0)
+      {
+        cksum += (uint16_t(p[0]<<8) + uint16_t(p[1]));
+        p += 2;
+        headLen -= 2;
+      }
+      cksum = (cksum>>16) + (cksum&0xffff); 
+      cksum += (cksum>>16); 
+      cksum = (uint16_t)(~cksum);
+      packet[10] = uint8_t(cksum>>8);
+      packet[11] = uint8_t(cksum&0x00ff);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    return false;
+  }
 }
