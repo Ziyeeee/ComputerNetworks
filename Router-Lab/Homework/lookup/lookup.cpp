@@ -18,6 +18,15 @@
   你可以在全局变量中把路由表以一定的数据结构格式保存下来。
 */
 
+struct ListNode
+{
+  /* data */
+  RoutingTableEntry *node;
+  ListNode *nextNode;
+};
+
+ListNode *Head = NULL;
+
 /**
  * @brief 插入/删除一条路由表表项
  * @param insert 如果要插入则为 true ，要删除则为 false
@@ -28,6 +37,127 @@
  */
 void update(bool insert, RoutingTableEntry entry) {
   // TODO:
+  ListNode *nowNode, *prNode, *newNode;
+  RoutingTableEntry *newEntry;
+  nowNode = Head;
+  prNode = NULL;
+  if (insert == true)
+  {
+    while (nowNode != NULL)
+    {
+      if (entry.len < nowNode->node->len)
+      {
+        prNode = nowNode;
+        nowNode = nowNode->nextNode;
+      }
+      else if (entry.len = nowNode->node->len)
+      {
+        if (entry.addr < nowNode->node->addr)
+        {
+          prNode = nowNode;
+          nowNode = nowNode->nextNode;
+        }
+        else if (entry.addr > nowNode->node->addr)
+        {
+          newNode = (ListNode*)malloc(sizeof(ListNode));
+
+          newEntry = (RoutingTableEntry*)malloc(sizeof(RoutingTableEntry));
+          newEntry->addr = entry.addr;
+          newEntry->len = entry.len;
+          newEntry->if_index = entry.if_index;
+          newEntry->nexthop = entry.nexthop;
+
+          newNode->node = newEntry;
+          prNode->nextNode = newNode;
+          newNode->nextNode = nowNode;
+          break;
+        }
+        else
+        {
+          nowNode->node->if_index = entry.if_index;
+          nowNode->node->nexthop = entry.nexthop;
+          break;
+        }
+      }
+      else
+      {
+        newNode = (ListNode*)malloc(sizeof(ListNode));
+
+        newEntry = (RoutingTableEntry*)malloc(sizeof(RoutingTableEntry));
+        newEntry->addr = entry.addr;
+        newEntry->len = entry.len;
+        newEntry->if_index = entry.if_index;
+        newEntry->nexthop = entry.nexthop;
+
+        newNode->node = newEntry;
+        prNode->nextNode = newNode;
+        newNode->nextNode = nowNode;
+        break;
+      }
+    }
+    if (prNode == NULL)
+    {
+      Head = (ListNode*)malloc(sizeof(ListNode));
+
+      newEntry = (RoutingTableEntry*)malloc(sizeof(RoutingTableEntry));
+      newEntry->addr = entry.addr;
+      newEntry->len = entry.len;
+      newEntry->if_index = entry.if_index;
+      newEntry->nexthop = entry.nexthop;
+
+      Head->node = newEntry;
+      Head->nextNode = NULL;
+    }
+    else
+    {
+      newNode = (ListNode*)malloc(sizeof(ListNode));
+
+      newEntry = (RoutingTableEntry*)malloc(sizeof(RoutingTableEntry));
+      newEntry->addr = entry.addr;
+      newEntry->len = entry.len;
+      newEntry->if_index = entry.if_index;
+      newEntry->nexthop = entry.nexthop;
+
+      newNode->node = newEntry;
+      prNode->nextNode = newNode;
+      newNode->nextNode = NULL;
+    }
+  }
+  else
+  {
+    while (nowNode != NULL)
+    {
+      if (entry.len < nowNode->node->len)
+      {
+        prNode = nowNode;
+        nowNode = nowNode->nextNode;
+      }
+      else if (entry.len = nowNode->node->len)
+      {
+        if (entry.addr < nowNode->node->addr)
+        {
+          prNode = nowNode;
+          nowNode = nowNode->nextNode;
+        }
+        else if (entry.addr = nowNode->node->addr)
+        {
+          prNode->nextNode = nowNode->nextNode;
+          free(nowNode->node);
+          free(nowNode);
+          break;
+        }
+        else
+        {
+          return;
+        }
+      }
+      else
+      {
+        return;
+      }
+    }
+  }
+  return;
 }
 
 /**
@@ -39,7 +169,27 @@ void update(bool insert, RoutingTableEntry entry) {
  */
 bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index) {
   // TODO:
+  ListNode *nowNode, *prNode;
+  nowNode = Head;
   *nexthop = 0;
   *if_index = 0;
+  while (nowNode != NULL)
+  {
+    if (addr < nowNode->node->addr)
+    {
+      prNode = nowNode;
+      nowNode = nowNode->nextNode;
+    }
+    else if (addr = nowNode->node->addr)
+    {
+      nexthop = &(nowNode->node->nexthop);
+      if_index = &(nowNode->node->if_index);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
   return false;
 }
