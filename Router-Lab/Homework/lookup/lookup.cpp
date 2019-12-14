@@ -149,7 +149,14 @@ void update(bool insert, RoutingTableEntry entry) {
         }
         else if (entry.addr == nowNode->node->addr)
         {
-          prNode->nextNode = nowNode->nextNode;
+          if (prNode == NULL)
+          {
+            Head = nowNode->nextNode;
+          }
+          else
+          {
+            prNode->nextNode = nowNode->nextNode;
+          }
           free(nowNode->node);
           free(nowNode);
           break;
