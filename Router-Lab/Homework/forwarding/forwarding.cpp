@@ -33,8 +33,8 @@ bool forward(uint8_t *packet, size_t len) {
         p += 2;
         headLen -= 2;
       }
-      cksum = (cksum>>16) + (cksum&0xffff); 
-      cksum += (cksum>>16); 
+      cksum = (cksum>>16) + (cksum&0xffff);
+      cksum += (cksum>>16);
       cksum = (uint16_t)(~cksum);
       packet[10] = uint8_t(cksum>>8);
       packet[11] = uint8_t(cksum&0x00ff);
@@ -62,27 +62,22 @@ bool validateIPChecksum(uint8_t *packet, size_t len) {
   uint8_t *p;
   int headLen;
   unsigned long cksum = 0;
-  if(validateIPChecksum(packet, len))
+  p = packet + 2;
+  if((size_t(p[0]<<8) + size_t(p[1])) == len)
   {
-    p = packet + 8;
-    if(p[0] > 0x00)
+    p = packet;
+    headLen = int((p[0]&0x0f)<<2);
+    while (headLen > 0)
     {
-      p[0] = p[0] - 1;
-      p = packet;
-      packet[10] = 0;
-      packet[11] = 0;
-      headLen = int((p[0]&0x0f)<<2);
-      while (headLen > 0)
-      {
-        cksum += (uint16_t(p[0]<<8) + uint16_t(p[1]));
-        p += 2;
-        headLen -= 2;
-      }
-      cksum = (cksum>>16) + (cksum&0xffff);
-      cksum += (cksum>>16);
-      cksum = (uint16_t)(~cksum);
-      packet[10] = uint8_t(cksum>>8);
-      packet[11] = uint8_t(cksum&0x00ff);
+      cksum += (uint16_t(p[0]<<8) + uint16_t(p[1]));
+      p += 2;
+      headLen -= 2;
+    }
+    cksum = (cksum>>16) + (cksum&0xffff);
+    cksum += (cksum>>16);
+    cksum = uint16_t(cksum&0xffff);
+    if (uint16_t(cksum) == 0xffff)
+    {
       return true;
     }
     else
