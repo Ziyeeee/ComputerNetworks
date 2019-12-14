@@ -63,7 +63,7 @@ bool validateIPChecksum(uint8_t *packet, size_t len) {
   int headLen;
   unsigned long cksum = 0;
   p = packet + 2;
-  if((size_t(p[0]<<8) + size_t(p[1])) == len)
+  if(int((p[0]&0x0f)<<2) <= len)  //IP总长度
   {
     p = packet;
     headLen = int((p[0]&0x0f)<<2);
