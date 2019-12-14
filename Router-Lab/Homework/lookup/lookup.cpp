@@ -31,7 +31,7 @@ ListNode *Head = NULL;
  * @brief 插入/删除一条路由表表项
  * @param insert 如果要插入则为 true ，要删除则为 false
  * @param entry 要插入/删除的表项
- * 
+ *
  * 插入时如果已经存在一条 addr 和 len 都相同的表项，则替换掉原有的。
  * 删除时按照 addr 和 len 匹配。
  */
@@ -50,7 +50,7 @@ void update(bool insert, RoutingTableEntry entry) {
         prNode = nowNode;
         nowNode = nowNode->nextNode;
       }
-      else if (entry.len = nowNode->node->len)
+      else if (entry.len == nowNode->node->len)
       {
         if (entry.addr < nowNode->node->addr)
         {
@@ -70,16 +70,16 @@ void update(bool insert, RoutingTableEntry entry) {
           newNode->node = newEntry;
           prNode->nextNode = newNode;
           newNode->nextNode = nowNode;
-          break;
+          return;
         }
-        else
+        else    //entry.addr == nowNode->node->addr
         {
           nowNode->node->if_index = entry.if_index;
           nowNode->node->nexthop = entry.nexthop;
-          break;
+          return;
         }
       }
-      else
+      else  //entry.len > nowNode->node->len
       {
         newNode = (ListNode*)malloc(sizeof(ListNode));
 
@@ -90,9 +90,17 @@ void update(bool insert, RoutingTableEntry entry) {
         newEntry->nexthop = entry.nexthop;
 
         newNode->node = newEntry;
-        prNode->nextNode = newNode;
-        newNode->nextNode = nowNode;
-        break;
+        if(prNode == NULL)
+        {
+          newNode->nextNode = Head;
+          Head = newNode;
+        }
+        else
+        {
+          prNode->nextNode = newNode;
+          newNode->nextNode = nowNode;
+        }
+        return;
       }
     }
     if (prNode == NULL)
@@ -108,7 +116,7 @@ void update(bool insert, RoutingTableEntry entry) {
       Head->node = newEntry;
       Head->nextNode = NULL;
     }
-    else
+    else    //prNode != NULL
     {
       newNode = (ListNode*)malloc(sizeof(ListNode));
 
@@ -123,7 +131,7 @@ void update(bool insert, RoutingTableEntry entry) {
       newNode->nextNode = NULL;
     }
   }
-  else
+  else  //insert == false
   {
     while (nowNode != NULL)
     {
@@ -132,21 +140,21 @@ void update(bool insert, RoutingTableEntry entry) {
         prNode = nowNode;
         nowNode = nowNode->nextNode;
       }
-      else if (entry.len = nowNode->node->len)
+      else if (entry.len == nowNode->node->len)
       {
         if (entry.addr < nowNode->node->addr)
         {
           prNode = nowNode;
           nowNode = nowNode->nextNode;
         }
-        else if (entry.addr = nowNode->node->addr)
+        else if (entry.addr == nowNode->node->addr)
         {
           prNode->nextNode = nowNode->nextNode;
           free(nowNode->node);
           free(nowNode);
           break;
         }
-        else
+        else    //entry.addr > nowNode->node->addr
         {
           return;
         }
@@ -169,7 +177,7 @@ void update(bool insert, RoutingTableEntry entry) {
  */
 bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index) {
   // TODO:
-  ListNode *nowNode, *prNode;
+  ListNode *nowNode;
   nowNode = Head;
   *nexthop = 0;
   *if_index = 0;
@@ -177,13 +185,12 @@ bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index) {
   {
     if (addr < nowNode->node->addr)
     {
-      prNode = nowNode;
       nowNode = nowNode->nextNode;
     }
-    else if (addr = nowNode->node->addr)
+    else if (addr == nowNode->node->addr)
     {
-      nexthop = &(nowNode->node->nexthop);
-      if_index = &(nowNode->node->if_index);
+      *nexthop = nowNode->node->nexthop;
+      *if_index = nowNode->node->if_index;
       return true;
     }
     else
