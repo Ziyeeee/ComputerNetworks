@@ -178,25 +178,31 @@ void update(bool insert, RoutingTableEntry entry) {
 bool query(uint32_t addr, uint32_t *nexthop, uint32_t *if_index) {
   // TODO:
   ListNode *nowNode;
-  nowNode = Head;
+  uint32_t subNet = 0xffffffff;
   *nexthop = 0;
   *if_index = 0;
-  while (nowNode != NULL)
+  while (addr != 0)
   {
-    if (addr < nowNode->node->addr)
+    nowNode = Head;
+    while (nowNode != NULL)
     {
-      nowNode = nowNode->nextNode;
+      if (addr < nowNode->node->addr)
+      {
+        nowNode = nowNode->nextNode;
+      }
+      else if (addr == nowNode->node->addr)
+      {
+        *nexthop = nowNode->node->nexthop;
+        *if_index = nowNode->node->if_index;
+        return true;
+      }
+      else
+      {
+        break;
+      }
     }
-    else if (addr == nowNode->node->addr)
-    {
-      *nexthop = nowNode->node->nexthop;
-      *if_index = nowNode->node->if_index;
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    subNet = subNet >> 1;
+    addr = addr&subNet;
   }
   return false;
 }
