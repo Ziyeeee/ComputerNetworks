@@ -25,8 +25,8 @@ bool validateIPChecksum(uint8_t *packet, size_t len) {
     }
     cksum = (cksum>>16) + (cksum&0xffff);
     cksum += (cksum>>16);
-    cksum = uint16_t(~cksum);
-    if (uint16_t(cksum) == 0)
+    cksum = uint16_t(cksum&0xffff);
+    if (uint16_t(cksum) == 0xffff)
     {
       return true;
     }
