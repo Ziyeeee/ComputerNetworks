@@ -45,6 +45,62 @@
  */
 bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output) {
   // TODO:
+  uint8_t *p;
+  uint32_t mask;
+  int headLen, nowLen, totalLen;
+  int i, flag, num = 0;
+  unsigned long cksum = 0;
+  p = (uint8_t*)(packet + 2);
+  totalLen = uint16_t(p[0]<<8) + uint16_t(p[1]);
+  if (totalLen == len)  //IP总长度
+  {
+    headLen = packet[0] & 0x0f;
+    p = (uint8_t*)(packet) + headLen + 8;
+    if ((p[0] == 0x01 || p[0] == 0x02) && (p[1] == 0x02) && (p[2] == 0x00) && (p[3] == 0x00))
+    {
+      nowLen = headLen + 8 + 4;
+      p += 4;
+      while (nowLen < totalLen)
+      {
+        flag = 0;
+        if (((packet[headLen + 8] == 0x01 && p[0] == 0x00 && p[1] == 0x00) || (packet[headLen + 8] == 0x02 && p[0] == 0x00 && p[1] == 0x02))
+            && (p[2] == 0x00) && (p[3] == 0x00)
+            && ((p[16] == 0x00 && p[17] == 0x00 && p[18] == 0x00 && p[19] != 0x01) || (p[16] == 0x00 && p[17] == 0x00 && p[18] == 0x01 && p[19] == 0x00)))
+        {
+          output->command = uint8_t(packet[headLen + 8]);
+          mask = uint32_t(p[8]<<24) + uint32_t(p[9]<<16) + uint32_t(p[10]<<8) + uint32_t(p[11]);
+          while ((flag < 2) || (mask != 0))
+          {
+            if ((mask & 0x00000001) == flag)
+            {
+              mask = mask >> 1;
+            }
+            else
+            {
+              flag++;
+            }
+          }
+          if (flag >= 2)
+          {
+            return false;
+          }
+          else
+          {
+            output->numEntries = num + 1;
+            output->entries[num].addr = uint32_t(p[4]<<24) + uint32_t(p[5]<<16) + uint32_t(p[6]<<8) + uint32_t(p[7]);
+            output->entries[num].mask = uint32_t(p[8]<<24) + uint32_t(p[9]<<16) + uint32_t(p[10]<<8) + uint32_t(p[11]);
+            output->entries[num].nexthop = uint32_t(p[12]<<24) + uint32_t(p[13]<<16) + uint32_t(p[14]<<8) + uint32_t(p[15]);
+            output->entries[num].metric = uint32_t(p[16]<<24) + uint32_t(p[17]<<16) + uint32_t(p[18]<<8) + uint32_t(p[19]);
+          }
+        }
+        else
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
   return false;
 }
 
