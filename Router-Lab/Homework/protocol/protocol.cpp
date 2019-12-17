@@ -116,5 +116,47 @@ bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output) {
  */
 uint32_t assemble(const RipPacket *rip, uint8_t *buffer) {
   // TODO:
-  return 0;
+  int length = 0;
+  int num = 0;
+  uint8_t *p;
+  if (rip->numEntries > 0)
+  {
+    buffer[0] = uint8_t(rip->command);
+    buffer[1] = uint8_t(0x02);
+    buffer[2] = 0x00;
+    buffer[3] = 0x00;
+    length = 4 + 20 * rip->numEntries;
+
+    p = buffer + 4;
+    for (num = 0; num < rip->numEntries; num++)
+    {
+      p[0] = 0x00;
+      p[1] = 0x02;
+      p[2] = 0x00;
+      p[3] = 0x00;
+
+      p[4] = uint8_t((rip->entries[num].addr & 0xff000000) >> 24);
+      p[5] = uint8_t((rip->entries[num].addr & 0x00ff0000) >> 16);
+      p[6] = uint8_t((rip->entries[num].addr & 0x0000ff00) >> 8);
+      p[7] = uint8_t(rip->entries[num].addr & 0x000000ff);
+
+      p[8] = uint8_t((rip->entries[num].mask & 0xff000000) >> 24);
+      p[9] = uint8_t((rip->entries[num].mask & 0x00ff0000) >> 16);
+      p[10] = uint8_t((rip->entries[num].mask & 0x0000ff00) >> 8);
+      p[11] = uint8_t(rip->entries[num].mask & 0x000000ff);
+
+      p[12] = uint8_t((rip->entries[num].nexthop & 0xff000000) >> 24);
+      p[13] = uint8_t((rip->entries[num].nexthop & 0x00ff0000) >> 16);
+      p[14] = uint8_t((rip->entries[num].nexthop & 0x0000ff00) >> 8);
+      p[15] = uint8_t(rip->entries[num].nexthop & 0x000000ff);
+
+      p[16] = uint8_t((rip->entries[num].metric & 0xff000000) >> 24);
+      p[17] = uint8_t((rip->entries[num].metric & 0x00ff0000) >> 16);
+      p[18] = uint8_t((rip->entries[num].metric & 0x0000ff00) >> 8);
+      p[19] = uint8_t(rip->entries[num].metric & 0x000000ff);
+
+      p += 20;
+    }
+  }
+  return length;
 }
