@@ -134,7 +134,7 @@ uint32_t assemble(const RipPacket *rip, uint8_t *buffer) {
     for (num = 0; num < rip->numEntries; num++)
     {
       p[0] = 0x00;
-      p[1] = 0x02;
+      
       p[2] = 0x00;
       p[3] = 0x00;
 
@@ -142,6 +142,15 @@ uint32_t assemble(const RipPacket *rip, uint8_t *buffer) {
       p[6] = uint8_t((rip->entries[num].addr & 0x00ff0000) >> 16);
       p[5] = uint8_t((rip->entries[num].addr & 0x0000ff00) >> 8);
       p[4] = uint8_t(rip->entries[num].addr & 0x000000ff);
+      if (rip->entries[num].addr == 0x00000000)
+      {
+        p[1] = 0x00;
+      }
+      else
+      {
+        p[1] = 0x02;
+      }
+      
 
       p[11] = uint8_t((rip->entries[num].mask & 0xff000000) >> 24);
       p[10] = uint8_t((rip->entries[num].mask & 0x00ff0000) >> 16);
