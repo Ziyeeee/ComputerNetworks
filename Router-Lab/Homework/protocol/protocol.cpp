@@ -92,6 +92,7 @@ bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output) {
             output->entries[num].nexthop = uint32_t(p[12]<<24) + uint32_t(p[13]<<16) + uint32_t(p[14]<<8) + uint32_t(p[15]);
             output->entries[num].metric = uint32_t(p[16]<<24) + uint32_t(p[17]<<16) + uint32_t(p[18]<<8) + uint32_t(p[19]);
           }
+          nowLen += 20;
         }
         else
         {
