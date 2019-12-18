@@ -54,7 +54,7 @@ bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output) {
   totalLen = uint16_t(p[0]<<8) + uint16_t(p[1]);
   if (totalLen <= len)  //IP总长度
   {
-    headLen = packet[0] & 0x0f;
+    headLen = (packet[0] & 0x0f) * 4;
     p = (uint8_t*)(packet) + headLen + 8;
     if ((p[0] == 0x01 || p[0] == 0x02) && (p[1] == 0x02) && (p[2] == 0x00) && (p[3] == 0x00))
     {
