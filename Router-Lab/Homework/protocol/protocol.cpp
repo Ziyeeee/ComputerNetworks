@@ -87,10 +87,10 @@ bool disassemble(const uint8_t *packet, uint32_t len, RipPacket *output) {
           else
           {
             output->numEntries = num + 1;
-            output->entries[num].addr = uint32_t(p[4]<<24) + uint32_t(p[5]<<16) + uint32_t(p[6]<<8) + uint32_t(p[7]);
-            output->entries[num].mask = uint32_t(p[8]<<24) + uint32_t(p[9]<<16) + uint32_t(p[10]<<8) + uint32_t(p[11]);
-            output->entries[num].nexthop = uint32_t(p[12]<<24) + uint32_t(p[13]<<16) + uint32_t(p[14]<<8) + uint32_t(p[15]);
-            output->entries[num].metric = uint32_t(p[16]<<24) + uint32_t(p[17]<<16) + uint32_t(p[18]<<8) + uint32_t(p[19]);
+            output->entries[num].addr = uint32_t(p[4]) + uint32_t(p[5]<<8) + uint32_t(p[6]<<16) + uint32_t(p[7]<<24);
+            output->entries[num].mask = uint32_t(p[8]) + uint32_t(p[9]<<8) + uint32_t(p[10]<<16) + uint32_t(p[11]<<24);
+            output->entries[num].nexthop = uint32_t(p[12]) + uint32_t(p[13]<<8) + uint32_t(p[14]<<16) + uint32_t(p[15]<<24);
+            output->entries[num].metric = uint32_t(p[16]) + uint32_t(p[17]<<8) + uint32_t(p[18]<<16) + uint32_t(p[19]<<24);
           }
           nowLen += 20;
         }
@@ -136,25 +136,25 @@ uint32_t assemble(const RipPacket *rip, uint8_t *buffer) {
       p[2] = 0x00;
       p[3] = 0x00;
 
-      p[4] = uint8_t((rip->entries[num].addr & 0xff000000) >> 24);
-      p[5] = uint8_t((rip->entries[num].addr & 0x00ff0000) >> 16);
-      p[6] = uint8_t((rip->entries[num].addr & 0x0000ff00) >> 8);
-      p[7] = uint8_t(rip->entries[num].addr & 0x000000ff);
+      p[7] = uint8_t((rip->entries[num].addr & 0xff000000) >> 24);
+      p[6] = uint8_t((rip->entries[num].addr & 0x00ff0000) >> 16);
+      p[5] = uint8_t((rip->entries[num].addr & 0x0000ff00) >> 8);
+      p[4] = uint8_t(rip->entries[num].addr & 0x000000ff);
 
-      p[8] = uint8_t((rip->entries[num].mask & 0xff000000) >> 24);
-      p[9] = uint8_t((rip->entries[num].mask & 0x00ff0000) >> 16);
-      p[10] = uint8_t((rip->entries[num].mask & 0x0000ff00) >> 8);
-      p[11] = uint8_t(rip->entries[num].mask & 0x000000ff);
+      p[11] = uint8_t((rip->entries[num].mask & 0xff000000) >> 24);
+      p[10] = uint8_t((rip->entries[num].mask & 0x00ff0000) >> 16);
+      p[9] = uint8_t((rip->entries[num].mask & 0x0000ff00) >> 8);
+      p[8] = uint8_t(rip->entries[num].mask & 0x000000ff);
 
-      p[12] = uint8_t((rip->entries[num].nexthop & 0xff000000) >> 24);
-      p[13] = uint8_t((rip->entries[num].nexthop & 0x00ff0000) >> 16);
-      p[14] = uint8_t((rip->entries[num].nexthop & 0x0000ff00) >> 8);
-      p[15] = uint8_t(rip->entries[num].nexthop & 0x000000ff);
+      p[15] = uint8_t((rip->entries[num].nexthop & 0xff000000) >> 24);
+      p[14] = uint8_t((rip->entries[num].nexthop & 0x00ff0000) >> 16);
+      p[13] = uint8_t((rip->entries[num].nexthop & 0x0000ff00) >> 8);
+      p[12] = uint8_t(rip->entries[num].nexthop & 0x000000ff);
 
-      p[16] = uint8_t((rip->entries[num].metric & 0xff000000) >> 24);
-      p[17] = uint8_t((rip->entries[num].metric & 0x00ff0000) >> 16);
-      p[18] = uint8_t((rip->entries[num].metric & 0x0000ff00) >> 8);
-      p[19] = uint8_t(rip->entries[num].metric & 0x000000ff);
+      p[19] = uint8_t((rip->entries[num].metric & 0xff000000) >> 24);
+      p[18] = uint8_t((rip->entries[num].metric & 0x00ff0000) >> 16);
+      p[17] = uint8_t((rip->entries[num].metric & 0x0000ff00) >> 8);
+      p[16] = uint8_t(rip->entries[num].metric & 0x000000ff);
 
       p += 20;
     }
